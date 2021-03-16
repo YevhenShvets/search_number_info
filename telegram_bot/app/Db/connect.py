@@ -4,9 +4,9 @@ import os
 
 load_dotenv()
 
-conn = psycopg2.connect(host=os.getenv("db_host"),
-                        port=os.getenv("db_port"),
-                        database=os.getenv("db_name"),
-                        user=os.getenv("db_user"),
-                        password=os.getenv("db_user_password"))
+conn = psycopg2.connect(host=os.getenv("database_host_name"),
+                        port=os.getenv("database_port"),
+                        database=os.getenv("database"),
+                        user=os.getenv("database_user"),
+                        password=os.getenv("database_password"))
 print("Database opened successfully")

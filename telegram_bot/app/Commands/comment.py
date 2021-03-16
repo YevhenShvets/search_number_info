@@ -5,6 +5,8 @@ from aiogram.dispatcher.filters import Text
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.types import ParseMode
 from app.Core import dp, bot
+from app.Helper import create_comment_data
+from app.Db.commands import insert_comment
 
 
 class Form(StatesGroup):
@@ -59,14 +61,9 @@ async def process_safe(message: types.Message, state: FSMContext):
 
 async def stop_handler(message: types.Message, state: FSMContext):
     data = await state.get_data()
-
-    await message.reply("_Дякую за ваш коментар_👍", parse_mode=ParseMode.MARKDOWN_V2)
-    await bot.send_message(
-        message.chat.id,
-        data.__str__(),
-        parse_mode=ParseMode.MARKDOWN
-    )
-
+    comment_data = create_comment_data(data)
+    insert_comment(comment_data)
+    await message.reply("_Дякую за ваш відгук_👍", parse_mode=ParseMode.MARKDOWN_V2)
     # Finish conversation
     await state.finish()
 
