@@ -1,0 +1,70 @@
+{% extends 'number/base.html' %}
+
+{% block content %}
+
+<div class="s130">
+      <form action="{% url 'search_form' %}" method="post">
+          {% csrf_token %}
+        <div class="inner-form">
+          <div class="input-field first-wrap">
+            <div class="svg-wrapper">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"></path>
+              </svg>
+            </div>
+            <input id="search" type="text" name="number" placeholder="Номер телефону" />
+          </div>
+          <div class="input-field second-wrap">
+            <button class="btn-search" type="submit">Пошук</button>
+          </div>
+        </div>
+      </form>
+</div>
+<br>
+<div class="main-block container">
+    Телефонний номер: +380969269100
+    {% if number %}
+        <div>
+            <p>{{ number.id_number.id }}</p>
+            <p>{{ number.id_number.number }}</p>
+            <p>{{ number.id_number.date_added }}</p>
+            <p>{{ number.last_view_date }}</p>
+            <p>{{ number.views }}</p>
+        </div>
+        {% if comments %}
+            <div>
+                {% for comment in comments %}
+                    <p>{{ comment.content }}</p>
+                    <p>{{ comment.level.text }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endif %}
+</div>
+
+<div>
+    <div>
+         {% if last_view %}
+            {% for v in last_view %}
+                <a href="{% url 'search_number' number=v.id_number.number %}">{{ v.id_number.number }}</a>
+            {% endfor %}
+         {% endif %}
+    </div>
+    <div>
+         {% if popular_view %}
+            {% for v in popular_view %}
+                <a href="{% url 'search_number' number=v.id_number.number %}">{{ v.id_number.number }} -- {{ v.views }}</a>
+            {% endfor %}
+         {% endif %}
+    </div>
+     <div>
+         {% if popular_comments %}
+            {% for v in popular_comments %}
+                <a href="{% url 'search_number' number=v.id_number__number %}">{{ v.id_number__number }} -- {{ v.total }}</a>
+            {% endfor %}
+         {% endif %}
+    </div>
+</div>
+
+
+{% endblock %}
