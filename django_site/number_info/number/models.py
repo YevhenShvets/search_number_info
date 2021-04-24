@@ -76,3 +76,36 @@ class Levels(models.Model):
         db_table = 'levels'
         verbose_name = 'Рівень коментаря'
         verbose_name_plural = 'Рівні коментарів'
+
+
+class DateView(models.Model):
+    id_number = models.ForeignKey('Number', models.DO_NOTHING, db_column='id_number')
+    date = models.DateField()
+    views = models.IntegerField()
+
+    class Meta:
+        managed = False
+        db_table = 'date_view'
+
+
+class Contacts(models.Model):
+    username = models.CharField(max_length=255)
+    email = models.CharField(max_length=255)
+    message = models.TextField()
+    create_at = models.DateTimeField()
+    answered = models.BooleanField()
+
+    class Meta:
+        managed = False
+        db_table = 'contacts'
+
+
+class Questions(models.Model):
+    index = models.IntegerField()
+    question = models.CharField(max_length=255)
+    answer = models.TextField()
+
+    class Meta:
+        managed = False
+        db_table = 'questions'
+
