@@ -45,3 +45,16 @@ def inline_for_view_comment(id_number, offset, max_comment):
 
     keyboard.add(but_back, but_text, but_next)
     return keyboard
+
+def inline_for_view_qa(offset, max_qa):
+    keyboard = InlineKeyboardMarkup()
+
+    but_next = InlineKeyboardButton("➕",
+                                    callback_data=cf.new(id=f"'qa'.{offset}", action="qa_view_next"))
+    but_back = InlineKeyboardButton("➖",
+                                    callback_data=cf.new(id=f"'qa'.{offset}", action="qa_view_back"))
+    but_text = InlineKeyboardButton(f"{offset+1}/{max_qa}",
+                                    callback_data=cf.new(id=f"'qa'.{offset}", action="qa_view_text"))
+
+    keyboard.add(but_back, but_text, but_next)
+    return keyboard

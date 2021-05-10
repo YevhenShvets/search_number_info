@@ -11,6 +11,8 @@ def select_number_info(number):
     cur.close()
     if not number_info:
         insert_number(number)
+        number_i = select_number_info(number)
+        insert_number_date_view(number_i[0], datetime.datetime.now().date())
         return select_number_info(number)
     return number_info
 
@@ -20,6 +22,16 @@ def update_number_activity(number_id):
     cur = conn.cursor()
     cur.execute('UPDATE "number_activity" SET views=views+1, last_view_date=%s WHERE id_number=%s;',
                 (last_date, number_id))
+    conn.commit()
+    cur.close()
+    update_number_date_view(number_id, datetime.datetime.now().date())
+
+    
+def update_number_date_view(number_id, dateView):
+    last_date = datetime.datetime.now()
+    cur = conn.cursor()
+    cur.execute('UPDATE "date_view" SET views=views+1 WHERE id_number=%s AND date=%s;',
+                (number_id, dateView))
     conn.commit()
     cur.close()
 
@@ -39,11 +51,21 @@ def select_comment(number_id, offset):
     cur = conn.cursor()
     cur.execute('SELECT c.id_number, c.content, c.date_create, c.level, c.id, ca.good, ca.bad FROM "comment" as c '
                 'LEFT JOIN "comment_activity" as ca ON c.id=ca.id_comment '
-                'WHERE c.id_number=%s ORDER BY c.date_create LIMIT 1 OFFSET %s', (number_id, offset))
+                'WHERE c.id_number=%s ORDER BY c.date_create DESC LIMIT 1 OFFSET %s', (number_id, offset))
 
     comment = cur.fetchone()
     cur.close()
     return comment
+
+def select_all_comments(number_id):
+    cur = conn.cursor()
+    cur.execute('SELECT c.id_number, c.content, c.date_create, c.level, c.id, ca.good, ca.bad FROM "comment" as c '
+                'LEFT JOIN "comment_activity" as ca ON c.id=ca.id_comment '
+                'WHERE c.id_number=%s ORDER BY c.date_create', (number_id,))
+
+    comments = cur.fetchall()
+    cur.close()
+    return comments
 
 
 def select_comment_len(number_id):
@@ -53,6 +75,25 @@ def select_comment_len(number_id):
     comment_count = cur.fetchone()[0]
     cur.close()
     return comment_count
+
+
+def select_qa(offset):
+    cur = conn.cursor()
+    cur.execute('SELECT * FROM "questions" as c '
+                'ORDER BY c.index LIMIT 1 OFFSET %s', (offset, ))
+
+    qa = cur.fetchone()
+    cur.close()
+    return qa
+
+
+def select_qa_len():
+    cur = conn.cursor()
+    cur.execute('SELECT COUNT(c.id) FROM questions as c')
+
+    qa_count = cur.fetchone()[0]
+    cur.close()
+    return qa_count
 
 
 # private
@@ -81,5 +122,13 @@ def insert_comment_activity(comment_id):
     cur = conn.cursor()
     cur.execute('INSERT INTO "comment_activity"(id_comment, good, bad) VALUES(%s, 0, 0)',
                 (comment_id,))
+    conn.commit()
+    cur.close()
+    
+#private
+def insert_number_date_view(number_id, dateView):
+    cur = conn.cursor()
+    cur.execute('INSERT INTO "date_view"(id_number, date, views) VALUES(%s, %s, 0)',
+                (number_id, dateView))
     conn.commit()
     cur.close()

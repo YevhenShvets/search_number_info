@@ -4,10 +4,10 @@ from aiogram.types import ParseMode
 import typing
 
 from app.Core import dp, bot
-from app.Menu import cf, inline_for_number_with_comment, inline_for_view_comment
+from app.Menu import cf, inline_for_number_with_comment, inline_for_view_comment, inline_for_view_qa
 from app.Commands.comment import Form
-from app.Db import select_comment, select_comment_len
-from app.Helper import create_beautiful_comment
+from app.Db import select_comment, select_comment_len, select_qa, select_qa_len
+from app.Helper import create_beautiful_comment, create_beautiful_qa
 
 
 @dp.callback_query_handler(cf.filter(action='comment'))
@@ -58,7 +58,7 @@ async def callback_handler_view_comments(callback_query: types.CallbackQuery, ca
     count_comments = select_comment_len(number_id)
     if count_comments == 0:
         await bot.send_message(callback_query.message.chat.id,
-                               "Відгуки відсутні(")
+                               "Відгуки відсутні☹️")
     else:
         keyboard = inline_for_view_comment(number_id, 0, count_comments)
         comment = select_comment(number_id, 0)
@@ -97,6 +97,42 @@ async def callback_handler_view_back_comments(callback_query: types.CallbackQuer
         comment = select_comment(number_id, offset)
         b_comment = create_beautiful_comment(comment)
         await bot.edit_message_text(text=b_comment,
+                                    chat_id=callback_query.message.chat.id,
+                                    message_id=callback_query.message.message_id,
+                                    reply_markup=keyboard,
+                                    parse_mode=ParseMode.MARKDOWN)
+
+
+
+
+@dp.callback_query_handler(cf.filter(action='qa_view_back'))
+async def callback_handler_view_next_qa(callback_query: types.CallbackQuery, callback_data: typing.Dict[str, str]):
+    data = callback_data['id'].split('.')
+    qa_id = data[0]
+    offset = int(data[1]) - 1
+    count_qa = select_qa_len()
+    if offset >= 0:
+        keyboard = inline_for_view_qa(offset, count_qa)
+        qa = select_qa(offset)
+        qa_data = create_beautiful_qa(qa)
+        await bot.edit_message_text(text=qa_data,
+                                    chat_id=callback_query.message.chat.id,
+                                    message_id=callback_query.message.message_id,
+                                    reply_markup=keyboard,
+                                    parse_mode=ParseMode.MARKDOWN)
+
+
+@dp.callback_query_handler(cf.filter(action='qa_view_next'))
+async def callback_handler_view_back_qa(callback_query: types.CallbackQuery, callback_data: typing.Dict[str, str]):
+    data = callback_data['id'].split('.')
+    qa_id = data[0]
+    offset = int(data[1])+1
+    count_qa = select_qa_len()
+    if offset < count_qa:
+        keyboard = inline_for_view_qa(offset, count_qa)
+        qa = select_qa(offset)
+        qa_data = create_beautiful_qa(qa)
+        await bot.edit_message_text(text=qa_data,
                                     chat_id=callback_query.message.chat.id,
                                     message_id=callback_query.message.message_id,
                                     reply_markup=keyboard,

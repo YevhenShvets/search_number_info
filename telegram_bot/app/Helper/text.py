@@ -1,5 +1,5 @@
 from babel.dates import format_datetime
-
+import phonenumbers
 
 def number_with_character(text):
     result = ""
@@ -13,11 +13,18 @@ def number_with_character(text):
 
 def is_phone_number(number):
     if len(number) < 10:
-        return False
-    for val in number:
-        if val not in "+1234567890()- ":
-            return False
-    return True
+        return False, number
+    try:
+        phone = phonenumbers.parse(number, "UA")
+        if len(phone.national_number.__str__()) != 9:
+            return False, number
+        print(phone)
+        number = "+" + phone.country_code.__str__() + phone.national_number.__str__()
+    except:
+        print('EROR')
+        return False, number
+
+    return True, number
 
 
 def create_comment_data(data):
@@ -58,7 +65,14 @@ def create_beautiful_comment(data):
              "➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖\n" \
              f"{content}\n" \
              "➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖\n" \
-             f"👍🏼 *{data[5]}* | 👎🏼 *{data[6]}*\n\n" \
              f"_{date_create}_🕐"
     return result
 
+#  f"👍🏼 *{data[5]}* | 👎🏼 *{data[6]}*\n\n" \
+
+def create_beautiful_qa(data):
+    result = f"❓ *{data[2]}*\n\n" \
+             f"- - -   - - -   - - -   - - -   - - -   - - -   - - -   - - -   - - -   - - -   - - -   - - -   - - -   - - -   - - -\n" \
+             f"\n▫️ {data[3]}"
+
+    return result
