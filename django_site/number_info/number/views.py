@@ -150,8 +150,9 @@ class QuestionView(LoginRequiredMixin, View):
     def post(self, request):
         data = QuestionForm(request.POST)
         if data.is_valid():
-            obj = Questions.objects.filter(index=request.POST['index'])[0]
+            obj = Questions.objects.filter(index=request.POST['index'])
             if obj:
+                obj = obj[0]
                 obj.question = request.POST['question']
                 obj.answer = request.POST['answer']
                 obj.save()
