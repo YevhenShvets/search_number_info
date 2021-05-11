@@ -181,8 +181,8 @@
         <h1>Останні переглянуті</h1>
          {% if last_view %}
             {% for v in last_view %}
-                <a class="box" href="{% url 'search_number' number=v.id_number.number %}">
-                    {{ v.id_number.number }}<br>
+                <a class="box" href="{% url 'search_number' number=v.number %}">
+                    {{ v.number }}<br>
                     <div style="text-align:right;">{{ v.views }}  <i class="bi bi-eye-fill"></i></div>
                 </a>
             {% endfor %}
@@ -192,8 +192,8 @@
         <h1>Популярні по перегляду</h1>
          {% if popular_view %}
             {% for v in popular_view %}
-                <a class="box" href="{% url 'search_number' number=v.id_number.number %}">
-                    {{ v.id_number.number }}<br>
+                <a class="box" href="{% url 'search_number' number=v.number %}">
+                    {{ v.number }}<br>
                     <div style="text-align:right;">{{ v.views }}  <i class="bi bi-eye-fill"></i></div>
                 </a>
             {% endfor %}

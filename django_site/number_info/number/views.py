@@ -17,6 +17,7 @@ def handle_page_not_found(request, *args, **kwargs):
 
 def index(request):
     context = get_context()
+    # print(context.__str__())
     return render(request, 'number/index2.html', context=context)
 
 
@@ -35,35 +36,39 @@ def search(request, number):
 
     phone_number = number
     page = request.GET.get('page', 1)
-
-    number_activity = NumberActivity.objects.filter(id_number__number=phone_number).first()
+    number_activity = Number.objects.raw(f'SELECT na.*, n.* FROM "number_activity" as na INNER JOIN "number" as n ON n.id=na.id_number WHERE n.number=%s', [phone_number])[0]
     if number_activity:
+        NumberModel = Number.objects.get(id=number_activity.id_number)
         if not request.GET.get('page'):
             n = NumberActivity.objects.get(id_number=number_activity.id_number)
             n.last_view_date = datetime.now(tz=timezone.get_current_timezone())
             n.views += 1
             n.save()
-            dv = DateView.objects.filter(id_number=number_activity.id_number, date=datetime.now(tz=timezone.get_current_timezone()).date())
+            dv = DateView.objects.filter(id_number=NumberModel, date=datetime.now(tz=timezone.get_current_timezone()).date())
             if dv:
                 dv[0].views += 1
                 dv[0].save()
             else:
-                dv = DateView(id_number=number_activity.id_number, date=datetime.now(tz=timezone.get_current_timezone()).date(), views=0)
+                dv = DateView(id_number=NumberModel, date=datetime.now(tz=timezone.get_current_timezone()).date(), views=0)
                 dv.save()
     else:
         number_id = Number(number=phone_number,
                            date_added=datetime.now(tz=timezone.get_current_timezone()),
                            is_active=True)
         number_id.save()
-        number_activity = NumberActivity(id_number=number_id,
+        number_activity = NumberActivity(id_number=number_id.id,
                                          last_view_date=datetime.now(tz=timezone.get_current_timezone()),
                                          views=1)
         number_activity.save()
-        date_view = DateView(id_number=number_activity.id_number, date=datetime.now(tz=timezone.get_current_timezone()).date(), views=0)
+        date_view = DateView(id_number=number_id, date=datetime.now(tz=timezone.get_current_timezone()).date(), views=0)
         date_view.save()
 
-    comments = Comment.objects.filter(id_number=number_activity.id_number)
-    comments_count = len(comments)
+    NumberModel = Number.objects.filter(id=number_activity.id_number)[0]
+    if NumberModel:
+        comments = Comment.objects.filter(id_number=NumberModel)
+        comments_count = len(comments)
+    else:
+        comments_count = 0
     if comments_count > 0:
         comments_last_add = comments[len(comments)-1].date_create
         comments_stat = get_comments_stat(comments)
@@ -87,12 +92,12 @@ def search(request, number):
     context['comments_stat'] = comments_stat
 
     # stats
-    stats_data = DateView.objects.filter(id_number=number_activity.id_number).order_by('date')[:5]
+    stats_data = DateView.objects.filter(id_number=NumberModel).order_by('-date')[:5]
     stats_date = []
     stats_views = []
-    for sd in stats_data:
-        stats_date.append(str(sd.date.strftime("%d.%m.%Y")))
-        stats_views.append(sd.views)
+    for i in range(len(stats_data)-1, -1, -1):
+        stats_date.append(str(stats_data[i].date.strftime("%d.%m.%Y")))
+        stats_views.append(stats_data[i].views)
     context['stats_date'] = json.dumps(stats_date)
     context['stats_views'] = json.dumps(stats_views)
 

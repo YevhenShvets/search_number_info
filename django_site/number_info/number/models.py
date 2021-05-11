@@ -17,8 +17,8 @@ class Number(models.Model):
 
 
 class NumberActivity(models.Model):
-    # id_number = models.IntegerField(primary_key=True)
-    id_number = models.ForeignKey('Number', models.DO_NOTHING, db_column='id_number', primary_key=True)
+    id_number = models.IntegerField(primary_key=True)
+    # id_number = models.ForeignKey('Number', models.DO_NOTHING,  db_column='id_number')
     last_view_date = models.DateTimeField()
     views = models.IntegerField()
 

@@ -3,13 +3,14 @@ from .models import *
 import phonenumbers
 import math
 
+
 def get_context():
     context = {}
 
-    last_view = NumberActivity.objects.order_by('-last_view_date')[:10]
-    popular_view = NumberActivity.objects.order_by('-views')[:10]
+    # last_view = NumberActivity.objects.order_by('-last_view_date')[:10]
+    last_view = Number.objects.raw('SELECT na.*, n.* FROM "number_activity" as na INNER JOIN "number" as n ON n.id=na.id_number ORDER BY na.last_view_date DESC')[:10]
+    popular_view = Number.objects.raw('SELECT na.*, n.* FROM "number_activity" as na INNER JOIN "number" as n ON n.id=na.id_number ORDER BY na.views DESC')[:10]
     popular_comments = Comment.objects.values('id_number__number').annotate(total=Count('id_number')).order_by('-total')[:10]
-
     context['last_view'] = last_view
     context['popular_view'] = popular_view
     context['popular_comments'] = popular_comments
