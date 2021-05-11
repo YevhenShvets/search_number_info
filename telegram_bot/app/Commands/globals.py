@@ -1,7 +1,7 @@
 from aiogram import types
 from app.Core import dp
 from app.Db.commands import select_qa_len, select_qa
-from app.Menu import inline_for_view_qa
+from app.Menu import inline_for_view_qa, inline_for_view_categories
 from app.Helper import create_beautiful_qa
 
 
@@ -37,5 +37,14 @@ async def qa_command(message: types.Message):
     qa = select_qa(0)
     qa_data = create_beautiful_qa(qa)
     await message.answer(qa_data,
+                        reply_markup=keyboard,
+                        parse_mode=types.ParseMode.MARKDOWN)
+
+@dp.message_handler(commands='categories')
+async def categories_command(message: types.Message):
+    result = f"*Категорії:*\n" \
+             f"➖➖➖➖➖➖➖➖➖"
+    keyboard = inline_for_view_categories()
+    await message.answer(result,
                         reply_markup=keyboard,
                         parse_mode=types.ParseMode.MARKDOWN)

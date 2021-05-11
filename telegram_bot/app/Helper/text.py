@@ -76,3 +76,13 @@ def create_beautiful_qa(data):
              f"\n▫️ {data[3]}"
 
     return result
+
+def get_category_icon(category):
+    cicon = ""
+    if category == "last_view":
+        cicon = "👁‍🗨"
+    elif category == "popular_view":
+        cicon = "👁‍🗨"
+    elif category == "max_comment":
+        cicon = "📄"
+    return cicon

@@ -96,6 +96,22 @@ def select_qa_len():
     return qa_count
 
 
+def select_number_by_category(category):
+    cur = conn.cursor()
+    data = []
+    if category == "last_view":
+        cur.execute('SELECT n.number, na.views FROM number as n INNER JOIN number_activity as na ON n.id=na.id_number ORDER BY na.last_view_date DESC')
+        data = cur.fetchall()[:10]
+    elif category == "popular_view":
+        cur.execute('SELECT n.number, na.views FROM number as n INNER JOIN number_activity as na ON n.id=na.id_number ORDER BY na.views DESC')
+        data = cur.fetchall()[:10]
+    elif category == "max_comment":
+        cur.execute('SELECT "number"."number", COUNT("comment"."id_number") AS "total" FROM "comment" INNER JOIN "number" ON ("comment"."id_number" = "number"."id") GROUP BY "number"."number" ORDER BY "total" DESC')
+        data = cur.fetchall()[:10]
+    cur.close()
+    return data
+
+
 # private
 def insert_number(number):
     date_added = datetime.datetime.now()

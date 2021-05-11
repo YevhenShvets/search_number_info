@@ -4,10 +4,11 @@ from aiogram.types import ParseMode
 import typing
 
 from app.Core import dp, bot
-from app.Menu import cf, inline_for_number_with_comment, inline_for_view_comment, inline_for_view_qa
+from app.Menu import cf, inline_for_number_with_comment, inline_for_view_comment, inline_for_view_qa, inline_for_view_category
 from app.Commands.comment import Form
-from app.Db import select_comment, select_comment_len, select_qa, select_qa_len
-from app.Helper import create_beautiful_comment, create_beautiful_qa
+from app.Db import select_comment, select_comment_len, select_qa, select_qa_len, select_number_by_category
+from app.Helper import create_beautiful_comment, create_beautiful_qa, get_category_icon
+from app.Commands.main_handler import get_number_info
 
 
 @dp.callback_query_handler(cf.filter(action='comment'))
@@ -138,3 +139,30 @@ async def callback_handler_view_back_qa(callback_query: types.CallbackQuery, cal
                                     reply_markup=keyboard,
                                     parse_mode=ParseMode.MARKDOWN)
 
+
+
+@dp.callback_query_handler(cf.filter(action='categories_view'))
+async def callback_handler_categories_view(callback_query: types.CallbackQuery, callback_data: typing.Dict[str, str]):
+    category = callback_data['id']
+    cicon = get_category_icon(category)
+    numbers = select_number_by_category(category)
+    keyboard = inline_for_view_category(numbers, cicon)
+
+    await bot.send_message(callback_query.message.chat.id,
+                            "🗂 Список номерів:",
+                            reply_markup=keyboard,
+                            parse_mode=ParseMode.MARKDOWN)
+
+
+@dp.callback_query_handler(cf.filter(action='number_view'))
+async def callback_handler_number_view(callback_query: types.CallbackQuery, callback_data: typing.Dict[str, str]):
+    number = callback_data['id']
+    result, keyboard = get_number_info(number)
+    await bot.send_message(callback_query.message.chat.id, result, 
+                            reply_markup=keyboard, 
+                            parse_mode=ParseMode.MARKDOWN_V2)
+
+
+@dp.callback_query_handler(cf.filter(action='delete'))
+async def callback_handler_delete(callback_query: types.CallbackQuery, callback_data: typing.Dict[str, str]):
+    await bot.delete_message(callback_query.message.chat.id, callback_query.message.message_id)

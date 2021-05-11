@@ -46,6 +46,7 @@ def inline_for_view_comment(id_number, offset, max_comment):
     keyboard.add(but_back, but_text, but_next)
     return keyboard
 
+
 def inline_for_view_qa(offset, max_qa):
     keyboard = InlineKeyboardMarkup()
 
@@ -57,4 +58,34 @@ def inline_for_view_qa(offset, max_qa):
                                     callback_data=cf.new(id=f"'qa'.{offset}", action="qa_view_text"))
 
     keyboard.add(but_back, but_text, but_next)
+    return keyboard
+
+
+def inline_for_view_categories():
+    keyboard = InlineKeyboardMarkup()
+
+    but_last_view = InlineKeyboardButton("◾️ Останні переглянуті", callback_data=cf.new(id=f"last_view", action="categories_view"))
+    but_popular_view = InlineKeyboardButton("▫️ Популярні по перегляду", callback_data=cf.new(id=f"popular_view", action="categories_view"))
+    but_max_comment = InlineKeyboardButton("◾️ Популярні по відгукам", callback_data=cf.new(id=f"max_comment", action="categories_view"))
+    
+
+    keyboard.add(but_last_view)
+    keyboard.add(but_popular_view)
+    keyboard.add(but_max_comment)
+    return keyboard
+
+
+def inline_for_view_category(data, icon):
+    keyboard = InlineKeyboardMarkup()
+
+    for i in range(0, len(data), 2):
+        but = InlineKeyboardButton(f"{data[i][0]}   ({data[i][1]}{icon})", callback_data=cf.new(id=f"{data[i][0]}", action="number_view"))
+        if i+1 < len(data):
+            but1 = InlineKeyboardButton(f"{data[i+1][0]}   ({data[i+1][1]}{icon})", callback_data=cf.new(id=f"{data[i+1][0]}", action="number_view"))
+            keyboard.add(but, but1)
+        else:
+            keyboard.add(but)
+
+    del_but = InlineKeyboardButton("❌", callback_data=cf.new(id=f"-", action="delete"))
+    keyboard.add(del_but)
     return keyboard
