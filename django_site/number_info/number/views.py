@@ -36,8 +36,9 @@ def search(request, number):
 
     phone_number = number
     page = request.GET.get('page', 1)
-    number_activity = Number.objects.raw(f'SELECT na.*, n.* FROM "number_activity" as na INNER JOIN "number" as n ON n.id=na.id_number WHERE n.number=%s', [phone_number])[0]
+    number_activity = Number.objects.raw(f'SELECT na.*, n.* FROM "number_activity" as na INNER JOIN "number" as n ON n.id=na.id_number WHERE n.number=%s', [phone_number])
     if number_activity:
+        number_activity = number_activity[0]
         NumberModel = Number.objects.get(id=number_activity.id_number)
         if not request.GET.get('page'):
             n = NumberActivity.objects.get(id_number=number_activity.id_number)
